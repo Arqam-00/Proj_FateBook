@@ -5,7 +5,7 @@
 #include "DoublyList.h"
 #include "Post.h"
 using namespace std;
-//Quddos,Fix the Feed logic for posts and Make the File_Manger to read from and Update files
+//Quddos,Fix the Feed logic for posts and Make the File_Manger to read from and Update files 
 //You can do it i m counting on You PARTTNER!!
 struct FriendRequest;
 
