@@ -1,5 +1,5 @@
 #include"Fate_Book.h"
-
+#include<fstream>
 
 Fate_Book::Fate_Book():current_user(nullptr) {}
 Fate_Book::~Fate_Book(){
@@ -92,14 +92,43 @@ User* Fate_Book::Check_By_Email(const string& email){
 }
 
 void Fate_Book::OpenFeed(){
-
-
+	
 }
 
 void Fate_Book::load_from_file(const string& filename) {
 
+	ifstream fin(filename);
+	if (!fin.is_open()) return;
+	int id, age, ispublic;
+	string name, email, password, location;
+	char gender;
+	Date createdAt;
 
+	while (fin >> id >> name >> email >> password >> location >> gender >> age >> ispublic
+		>> createdAt.Day >> createdAt.Month >> createdAt.Year)
+	{
+		User* u = new User("", name, email, password, location, gender, age, ispublic, createdAt);
+		u->SetID(id);
+		Users_.push_back(u);
+		if (id >= user_id_counter) user_id_counter = id + 1;
+	}
+	fin.close();
 }
 void Fate_Book::write_into_file(const string& filename) {
-
+	ofstream fout(filename);
+	for (auto it = Users_.begin(); it != Users_.end(); ++it) {
+		User* u = *it;
+		fout << u->id << " "
+			<< u->GetName() << " "
+			<< u->GetEmail() << " "
+			<< u->Password << " "
+			<< u->Location << " "
+			<< u->Gender << " "
+			<< u->Age << " "
+			<< u->IsPublic << " "
+			<< u->CreatedAt.Day << " "
+			<< u->CreatedAt.Month << " "
+			<< u->CreatedAt.Year << "\n";
+	}
+	fout.close();
 }

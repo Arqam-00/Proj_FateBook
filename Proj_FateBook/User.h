@@ -63,5 +63,5 @@ public:
     DoublyList<Post*> GetPosts() const;
     int GetPostCount() const;
     void View_Profile(User* viewer) {}
-
+    void SetID(int _id);
 };

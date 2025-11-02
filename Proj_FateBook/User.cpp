@@ -11,6 +11,7 @@ struct FriendRequest
 };
 User::User()
 {
+    PfpPath = "";
     Name = "";
     Email = "";
     Password = "";
