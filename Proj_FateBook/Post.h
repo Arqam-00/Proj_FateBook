@@ -10,7 +10,7 @@ struct Post
 {
     User* Owner;
     string Text;
-    Font f;
+    Font f ;
     Texture2D OwnerPfp;
     bool operator < (Post& other) {
         return this->TimeStamp < other.TimeStamp;
