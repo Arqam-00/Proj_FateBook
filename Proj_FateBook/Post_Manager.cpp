@@ -29,13 +29,13 @@ void PostManager::RemoveFromAllPosts(Post* P) {
 
 void PostManager::FinalizeDelete(Post* P) {
     if (!P) return;
-
     // Remove from owner's post list
     if (P->Owner) {
         auto& posts = P->Owner->Posts;
         for (auto it = posts.begin(); it != posts.end(); ++it) {
             if (*it == P) {
                 posts.erase_at(it);
+                cout << "\ne\nj\nhf\nw\nu\ne\nugf\nkewkjfbjkfvbkewjbfkjwbefjkew";
                 break;
             }
         }
