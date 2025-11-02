@@ -56,7 +56,7 @@ User::~User()
 }
 string User::GetName() const { return Name; }
 string User::GetEmail() const { return Email; }
-bool User::CheckPassword(const string& Pwd) const { return Password == Pwd; }
+bool User::CheckPassword(const string& _Password) const { return Password == _Password; }
 void User::SetPassword(const string& NewPassword) { Password = NewPassword; }
 bool User::AddFriendRequest(User* FromUser)     //Controlled by Fake_Book
 {

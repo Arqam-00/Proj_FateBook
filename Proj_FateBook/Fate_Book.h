@@ -9,16 +9,26 @@ class Fate_Book
 {
     DoublyList<User*> Users_;
     PostManager PostMgr_;
+    User* current_user;
     //File_Manager Storage_;
+    static int user_id_counter;
 public:
     Fate_Book();
     ~Fate_Book();
     bool Initialize();
-    User* CreateUser(const string& Name, const string& Email, const string& Password, const string& Location, char Gender, int Age, bool IsPublic, const Date& CreatedAt);
-    bool DeleteUser(User* U);
-    User* FindUserByEmail(const string& Email) const;
+    User* CreateUser(const string& Name, const string& Email, const string& Password, const string& Location, 
+        char Gender, int Age, bool IsPublic, const Date& CreatedAt);
     DoublyList<User*>* GetUsers();
     PostManager* GetPostManager();
-    //File_Manager* GetStorageManager();
+    void Signup();
+    void Login();
+    void Logout();
+    void DeleteUser();
+    User* Check_By_Email(const string& email);
+    User* Check(const string& email, const string& password);
+    void OpenFeed();
+
+    void load_from_file(const string& filename);
+    void write_into_file(const string& filename);
 
 };

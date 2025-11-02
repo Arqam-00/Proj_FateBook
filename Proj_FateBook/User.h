@@ -19,7 +19,8 @@ class User
     string GetCurrentTimeStamp() const;
 public:
     DoublyList<Post*> Posts;    
-    string PfpPath;
+    int id;
+    string pfpPath;
     string Name;
     string Email;
     string Password;
@@ -45,7 +46,7 @@ public:
     ~User();
     string GetName() const;
     string GetEmail() const;
-    bool CheckPassword(const string& Password) const;
+    bool CheckPassword(const string& _Password) const;
     void SetPassword(const string& NewPassword);
     bool AddFriendRequest(User* FromUser);
     bool AcceptFriendRequest(FriendRequest* Request);
