@@ -20,7 +20,7 @@ class User
 public:
     DoublyList<Post*> Posts;    
     int id;
-    string pfpPath;
+    string PfpPath;
     string Name;
     string Email;
     string Password;

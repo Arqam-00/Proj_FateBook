@@ -64,8 +64,7 @@ void Post::DrawPost(int x, int y, int width, User* viewer)
     int textX = x + padding + pfpSize + 10;
     int textY = y + padding;
     string ownerText = Owner ? Owner->GetName() : "Unknown";
-    if (f.texture.id != 0)
-        DrawTextEx(f, ownerText.c_str(), { (float)textX, (float)textY }, 20, 1, DARKBLUE);
+    if (f.texture.id != 0) DrawTextEx(f, ownerText.c_str(), { (float)textX, (float)textY }, 20, 1, DARKBLUE);
     textY += 24;
     char timeStr[26];
     ctime_s(timeStr, sizeof(timeStr), &TimeStamp);

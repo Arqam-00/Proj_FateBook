@@ -1,7 +1,6 @@
 #include "User.h"
 #include "Post.h"
 #include <ctime>
-
 struct FriendRequest
 {
     User* From;
