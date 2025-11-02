@@ -16,7 +16,7 @@ public:
     Fate_Book();
     ~Fate_Book();
     bool Initialize();
-    User* CreateUser(const string& Name, const string& Email, const string& Password, const string& Location, 
+    User* CreateUser(const string& Name, const string& Email, const string& Password, const string& Location,
         char Gender, int Age, bool IsPublic, const Date& CreatedAt);
     DoublyList<User*>* GetUsers();
     PostManager* GetPostManager();
@@ -30,5 +30,4 @@ public:
 
     void load_from_file(const string& filename);
     void write_into_file(const string& filename);
-
 };

@@ -10,13 +10,10 @@ Fate_Book::~Fate_Book(){
 bool Fate_Book::Initialize(){
 	load_from_file("users.txt");
 	return true;
-
 }
 User* Fate_Book::CreateUser(const string& Name, const string& Email, const string& Password,
 	const string& Location, char Gender, int Age, bool IsPublic, const Date& CreatedAt){
 	if (Check_By_Email(Email)) {
-		//email already in use
-		// should not go further then here
 	}
 	User* temp= new User("assets/pfps/default.png", Name, Email, Password, Location, Gender, Age, IsPublic, CreatedAt);
 	return temp;
@@ -33,10 +30,8 @@ void Fate_Book::Signup(){
 	int _age = 0;
 	bool _ispublic = true;
 	Date _CreatedAt;
-	//take thesse inputs 
 	if (Check_By_Email(_email)) {
-		//email already in use
-		// should not go further then here
+		
 	}
 	User* _user = CreateUser(_name, _email, _password, "None", _gender, _age, _ispublic, _CreatedAt);
 	Users_.push_back(_user);
