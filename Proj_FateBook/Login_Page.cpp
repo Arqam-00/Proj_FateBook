@@ -90,7 +90,7 @@ void LoginPage::HandleSignupInput() {
     Vector2 mouse = GetMousePosition();
     bool mousePressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 
-    // Field rectangles
+    //============Field rectangles
     Rectangle fieldBoxes[FIELD_COUNT] = {
         { 30, 100, 360, 40 },
         { 30, 180, 360, 40 },

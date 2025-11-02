@@ -1,5 +1,6 @@
 #include "Post.h"
-
+#include <iostream>
+using namespace std;
 Post::Post()
 {
     Owner = nullptr;
@@ -60,10 +61,10 @@ void Post::DrawPost(int x, int y, int width, User* viewer)
             WHITE
         );
     }
-
-    if (CheckCollisionPointRec(mousePos, { pfpPos.x, pfpPos.y, (float)pfpSize, (float)pfpSize }) &&
+    if (CheckCollisionPointRec(mousePos, { pfpPos.x, pfpPos.y, 1.0f*pfpSize, 1.0f * pfpSize }) &&
         IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        if (Owner) Owner->View_Profile(viewer);
+        if (Owner) Owner->View_Profile(Owner,viewer, GetFontDefault(), 10, 10, 400);
+
     }
     int textX = x + pfpSize + padding * 2;
     int textY = y + padding;

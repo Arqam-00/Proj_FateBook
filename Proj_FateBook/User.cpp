@@ -11,7 +11,7 @@ struct FriendRequest
 };
 User::User()
 {
-    PfpPath = "";
+    PfpPath = "assets/pfps/default.png";
     Name = "";
     Email = "";
     Password = "";
@@ -33,7 +33,7 @@ User::User(
     bool IsPublicBool,
     const Date& CreatedAtDate)
 {
-    PfpPath=Pfp;
+    PfpPath = Pfp;
     Name = NameStr;
     Email = EmailStr;
     Password = PasswordStr;
@@ -178,7 +178,7 @@ string User::GetCurrentTimeStamp() const
     time_t t = time(0);
     return to_string(t);
 }
-void View_Profile(User* profileOwner, User* viewer, Font font, int x, int y, int width)
+void User::View_Profile(User* profileOwner, User* viewer, Font font, int x, int y, int width)
 {
     const int padding = 20;
     const int pfpSize = 100;
@@ -268,4 +268,4 @@ void View_Profile(User* profileOwner, User* viewer, Font font, int x, int y, int
     }
     EndScissorMode();
 }
-
+void User::SetID(int _id) { id = _id; }

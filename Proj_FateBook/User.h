@@ -5,7 +5,7 @@
 #include "DoublyList.h"
 #include <raylib.h>
 #include <raymath.h>
-
+#include <fstream>
 using namespace std;
 //Quddos,Fix the Feed logic for posts and Make the File_Manger to read from and Update files 
 //You can do it i m counting on You PARTTNER!!
@@ -62,6 +62,6 @@ public:
     bool DeletePost(Post* P);
     DoublyList<Post*> GetPosts() const;
     int GetPostCount() const;
-    void View_Profile(User* viewer) {}
+    void View_Profile(User* profileOwner, User* viewer, Font font, int x, int y, int width);
     void SetID(int _id);
 };

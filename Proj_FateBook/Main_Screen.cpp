@@ -83,7 +83,7 @@ void MainApp::DrawFeedScreen() {
 
 void MainApp::DrawProfileScreen() {
     if (viewingProfile) {
-        currentUser->View_Profile(currentUser);
+        currentUser->View_Profile(viewingProfile, currentUser, GetFontDefault(), 10, 10, 400);
     }
     else {
         DrawText("No profile to display", 150, 350, 20, GRAY);
