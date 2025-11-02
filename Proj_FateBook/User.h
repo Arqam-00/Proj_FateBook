@@ -28,7 +28,7 @@ public:
     int Age;
     bool IsPublic;
     Date CreatedAt;
-
+    Texture2D PfpTexture = {0};
 
 
     User();
