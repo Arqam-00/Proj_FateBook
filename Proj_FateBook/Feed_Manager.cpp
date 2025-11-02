@@ -1,5 +1,7 @@
 #include "Feed_Manager.h"
 
+
+Feed_Manager::Feed_Manager(){}
 Feed_Manager::Feed_Manager(User* viewerUser, int x, int y, int width, int height)
     : viewer(viewerUser), scrollOffset(0), feedX(x), feedY(y), feedWidth(width), feedHeight(height) {
 }

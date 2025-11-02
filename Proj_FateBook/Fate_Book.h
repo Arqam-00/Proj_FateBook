@@ -11,7 +11,7 @@ class Fate_Book
     PostManager PostMgr_;
     User* current_user;
     //File_Manager Storage_;
-    static int user_id_counter;
+    int user_id_counter;
 public:
     Fate_Book();
     ~Fate_Book();

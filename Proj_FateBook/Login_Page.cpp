@@ -24,13 +24,44 @@ User* LoginPage::GetUser() const {
 void LoginPage::Update() {
     Vector2 mouse = GetMousePosition();
 
+    static int activeField = 0; // 0=email, 1=password for login, for signup we’ll reuse later
+
+    int key = GetCharPressed();
     if (state == WELCOME) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            if (mouse.y > 250 && mouse.y < 300) state = LOGIN;
-            else if (mouse.y > 320 && mouse.y < 370) state = SIGNUP;
+            if (mouse.y > 250 && mouse.y < 300) {
+                state = LOGIN;
+                activeField = 0;
+            }
+            else if (mouse.y > 320 && mouse.y < 370) {
+                state = SIGNUP;
+                activeField = 0;
+            }
         }
     }
+
     else if (state == LOGIN) {
+        // Switch fields with TAB
+        if (IsKeyPressed(KEY_TAB)) activeField = (activeField + 1) % 2;
+
+        // Backspace logic
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            if (activeField == 0 && strlen(loginEmail) > 0)
+                loginEmail[strlen(loginEmail) - 1] = '\0';
+            else if (activeField == 1 && strlen(loginPassword) > 0)
+                loginPassword[strlen(loginPassword) - 1] = '\0';
+        }
+
+        // Character input
+        while (key > 0) {
+            if (activeField == 0 && strlen(loginEmail) < 63 && key >= 32 && key <= 125)
+                loginEmail[strlen(loginEmail)] = (char)key, loginEmail[strlen(loginEmail) + 1] = '\0';
+            else if (activeField == 1 && strlen(loginPassword) < 63 && key >= 32 && key <= 125)
+                loginPassword[strlen(loginPassword)] = (char)key, loginPassword[strlen(loginPassword) + 1] = '\0';
+            key = GetCharPressed(); // get next char (Raylib queues multiple)
+        }
+
+        // Enter to login
         if (IsKeyPressed(KEY_ENTER)) {
             for (auto& u : users) {
                 if (u->GetEmail() == loginEmail && u->CheckPassword(loginPassword)) {
@@ -41,7 +72,9 @@ void LoginPage::Update() {
             }
         }
     }
+
     else if (state == SIGNUP) {
+        // Similar typing logic for signup can be added later (we’ll do it step-by-step)
         if (IsKeyPressed(KEY_ENTER)) {
             Date dob(day, month, year);
             if (!dob.IsValid()) return;
@@ -56,6 +89,7 @@ void LoginPage::Update() {
 
 void LoginPage::Draw() {
     ClearBackground(RAYWHITE);
+
     if (state == WELCOME) {
         DrawTextEx(font, "Fate_Book", { 100, 100 }, 40, 2, DARKBLUE);
         DrawRectangle(100, 250, 200, 50, BLUE);
@@ -63,34 +97,20 @@ void LoginPage::Draw() {
         DrawRectangle(100, 320, 200, 50, DARKGREEN);
         DrawText("Signup", 130, 335, 20, WHITE);
     }
+
     else if (state == LOGIN) {
         DrawText("Email:", 100, 100, 20, BLACK);
         DrawText(loginEmail, 100, 130, 20, DARKGRAY);
-        if (IsKeyPressed(KEY_BACKSPACE) && strlen(loginEmail) > 0) loginEmail[strlen(loginEmail) - 1] = '\0';
-        else if (GetCharPressed()) loginEmail[strlen(loginEmail)] = GetCharPressed();
 
         DrawText("Password:", 100, 180, 20, BLACK);
         string hidden = showPassword ? loginPassword : string(strlen(loginPassword), '*');
         DrawText(hidden.c_str(), 100, 210, 20, DARKGRAY);
-        if (IsKeyPressed(KEY_BACKSPACE) && strlen(loginPassword) > 0) loginPassword[strlen(loginPassword) - 1] = '\0';
-        else if (GetCharPressed()) loginPassword[strlen(loginPassword)] = GetCharPressed();
-        DrawText("Press Enter to Login", 100, 270, 20, GRAY);
+
+        DrawText("Press TAB to switch fields", 100, 250, 20, GRAY);
+        DrawText("Press ENTER to login", 100, 270, 20, GRAY);
     }
+
     else if (state == SIGNUP) {
-        DrawText("Name:", 100, 100, 20, BLACK);
-        DrawText(name, 100, 130, 20, DARKGRAY);
-        DrawText("Email:", 100, 160, 20, BLACK);
-        DrawText(email, 100, 190, 20, DARKGRAY);
-        DrawText("Password:", 100, 220, 20, BLACK);
-        DrawText(password, 100, 250, 20, DARKGRAY);
-        DrawText("Location:", 100, 280, 20, BLACK);
-        DrawText(location, 100, 310, 20, DARKGRAY);
-        DrawText("Gender (M/F):", 100, 340, 20, BLACK);
-        DrawText(&genderChar, 100, 370, 20, DARKGRAY);
-        DrawText("Age:", 100, 400, 20, BLACK);
-        DrawText(TextFormat("%d", age), 100, 430, 20, DARKGRAY);
-        DrawText("Date of Birth (D/M/Y):", 100, 460, 20, BLACK);
-        DrawText(TextFormat("%d/%d/%d", day, month, year), 100, 490, 20, DARKGRAY);
-        DrawText("Press Enter to Signup", 100, 530, 20, GRAY);
+        DrawText("Signup screen (coming soon typing support)", 100, 100, 20, DARKGRAY);
     }
 }

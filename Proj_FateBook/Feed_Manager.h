@@ -16,7 +16,7 @@ private:
 
 public:
     Feed_Manager(User* viewerUser, int x, int y, int width, int height);
-    Feed_Manager() {}
+    Feed_Manager();
     void Add(Post* post);
     void Clear();
     bool empty() const;

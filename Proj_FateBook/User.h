@@ -20,7 +20,7 @@ class User
 public:
     DoublyList<Post*> Posts;    
     int id;
-    string pfpPath;
+    string PfpPath;
     string Name;
     string Email;
     string Password;
@@ -29,9 +29,6 @@ public:
     int Age;
     bool IsPublic;
     Date CreatedAt;
-
-
-
     User();
     User(
         const string& Pfp,
@@ -63,5 +60,5 @@ public:
     DoublyList<Post*> GetPosts() const;
     int GetPostCount() const;
     void View_Profile(User* viewer) {}
-
+    void SetID(int _id);
 };

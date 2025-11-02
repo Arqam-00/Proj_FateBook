@@ -12,6 +12,7 @@ struct FriendRequest
 };
 User::User()
 {
+    PfpPath = "";
     Name = "";
     Email = "";
     Password = "";
@@ -262,3 +263,5 @@ void View_Profile(User* profileOwner, User* viewer, Font font, int x, int y, int
     }
     UnloadTexture(pfp);
 }
+
+void User::SetID(int _id) { id = _id; }
