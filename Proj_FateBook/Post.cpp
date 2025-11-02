@@ -26,3 +26,13 @@ Post::Post(User* OwnerPtr, const string& TextContent, bool Private)
     TimeStamp = time(0);
     LikeCount = 0;
 }
+
+void Post::addImage(string Path) {
+    Paths.push_back(Path);
+    HasImage = true;
+}
+
+void Post::addVideo(string Path) {
+    Paths.push_back(Path);
+    HasVideo = true;
+}

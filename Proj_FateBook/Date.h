@@ -1,4 +1,5 @@
 #pragma once
+
 #include <ctime>
 using namespace std;
 
@@ -13,5 +14,4 @@ struct Date
 
     Date NextDate();
     time_t ToTimeT();
-    Date FromTimeT(time_t T);
 };

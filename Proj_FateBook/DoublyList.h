@@ -26,9 +26,12 @@ public:
 
         T& operator*() { return current->data; }
 
-        Iterator& operator++() { return current = current->next; }
+        Iterator& operator++() { 
+            current = current->next;
+			return *this;
+        }
         Iterator operator++(int) {
-            auto temp = current;
+            auto temp = *this;
             current = current->next;
             return temp;
         }

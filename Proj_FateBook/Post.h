@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "User.h"
 #include <vector>
 #include <ctime>
 using namespace std;
@@ -23,4 +24,6 @@ struct Post
     int LikeCount;
     Post();
     Post(User* OwnerPtr, const string& TextContent, bool Private);
+    void addImage(string Path);
+    void addVideo(string Path);
 };

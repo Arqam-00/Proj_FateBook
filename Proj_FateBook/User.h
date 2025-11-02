@@ -8,6 +8,7 @@ using namespace std;
 //Quddos,Fix the Feed logic for posts and Make the File_Manger to read from and Update files 
 //You can do it i m counting on You PARTTNER!!
 struct FriendRequest;
+class Post;
 
 class User
 {
@@ -15,7 +16,7 @@ class User
     vector<FriendRequest*> FriendRequests;
     string GetCurrentTimeStamp() const;
 public:
-    DoublyList<Post*> Posts;
+    DoublyList<Post*> Posts;    
 
     string Name;
     string Email;
@@ -52,7 +53,7 @@ public:
     bool IsFriend(User* Other) const;
     int GetFriendCount() const;
     DoublyList<User*> GetFriendsList() const;
-    Post* CreatePost(const string& Text, const vector<string>& Paths, bool HasImage, bool HasVideo, bool Private);
+    Post* CreatePost(const string& _Text, const vector<string>& Paths, bool _HasImage, bool _HasVideo, bool _Private);
     bool DeletePost(Post* P);
     DoublyList<Post*> GetPosts() const;
     int GetPostCount() const;

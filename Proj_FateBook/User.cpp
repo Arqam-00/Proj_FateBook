@@ -144,13 +144,13 @@ bool User::IsFriend(User* Other) const
 int User::GetFriendCount() const { return Friends.size(); }
 DoublyList<User*> User::GetFriendsList() const { return Friends; }
 
-Post* User::CreatePost(const string& Text, const vector<string>& Paths, bool HasImage, bool HasVideo, bool Private)
+Post* User::CreatePost(const string& _Text, const vector<string>& _Paths, bool _HasImage, bool _HasVideo, bool _Private)
 {
-    Post* P = new Post(this, Text, Private);
-    P->HasImage = HasImage;
+    Post* P = new Post(this, _Text, _Private);
+    P->HasImage = _HasImage;
 
-    P->HasVideo = HasVideo;
-    P->Paths = Paths;
+    P->HasVideo = _HasVideo;
+    P->Paths = _Paths;
     Posts.push_back(P);
     return P;
 }

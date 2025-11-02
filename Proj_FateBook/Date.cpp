@@ -40,8 +40,4 @@ time_t Date::ToTimeT()
     Time.tm_year = Year - 1900;
     return mktime(&Time);
 }
-Date Date::FromTimeT(time_t T)
-{
-    tm* TimeStruct = localtime(&T);
-    return Date(TimeStruct->tm_mday, TimeStruct->tm_mon + 1, TimeStruct->tm_year + 1900);
-}
+

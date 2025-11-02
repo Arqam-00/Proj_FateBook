@@ -135,6 +135,7 @@
     <ClCompile Include="Date.cpp" />
     <ClCompile Include="Fate_Book.cpp" />
     <ClCompile Include="Feed_Manager.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Post.cpp" />
     <ClCompile Include="Post_Manager.cpp" />
     <ClCompile Include="User.cpp" />
