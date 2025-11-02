@@ -37,7 +37,7 @@ User::User(
     Name = NameStr;
     Email = EmailStr;
     Password = PasswordStr;
-    Location = LocationStr;
+    Location = LocationStr; 
     Gender = GenderChar;
     Age = AgeInt;
     IsPublic = IsPublicBool;
