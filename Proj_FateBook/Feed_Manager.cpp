@@ -5,8 +5,10 @@ Feed_Manager::Feed_Manager(User* viewerUser, int x, int y, int width, int height
 }
 
 void Feed_Manager::Add(Post* post) {
-    feedHeap.push(post);
-    feedList.push_back(post);
+    if (post->IsVisibleTo(viewer)) {
+        feedHeap.push(post);
+        feedList.push_back(post);
+    }
 }
 
 void Feed_Manager::Clear() {

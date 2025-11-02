@@ -135,6 +135,7 @@
     <ClInclude Include="Fate_Book.h" />
     <ClInclude Include="Feed_Manager.h" />
     <ClInclude Include="Login_Page.h" />
+    <ClInclude Include="Main_Screen.h" />
     <ClInclude Include="Post.h" />
     <ClInclude Include="Post_Manager.h" />
     <ClInclude Include="User.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="Feed_Manager.cpp" />
     <ClCompile Include="Login_Page.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Main_Screen.cpp" />
     <ClCompile Include="Post.cpp" />
     <ClCompile Include="Post_Manager.cpp" />
     <ClCompile Include="User.cpp" />
