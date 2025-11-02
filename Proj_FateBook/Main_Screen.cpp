@@ -49,9 +49,7 @@ void MainApp::Draw() {
 
 void MainApp::DrawBottomBar() {
     DrawRectangle(0, 700, 420, 100, LIGHTGRAY);
-
     DrawLine(0, 700, 420, 700, DARKGRAY);
-
     Color feedColor = (currentScreen == FEED) ? BLUE : GRAY;
     DrawRectangleRec(feedBtn, feedColor);
     DrawText("Feed", feedBtn.x + 10, feedBtn.y + 20, 16, WHITE);

@@ -18,7 +18,7 @@ User* Fate_Book::CreateUser(const string& Name, const string& Email, const strin
 		//email already in use
 		// should not go further then here
 	}
-	User* temp= new User("assets/default.png", Name, Email, Password, Location, Gender, Age, IsPublic, CreatedAt);
+	User* temp= new User("assets/pfps/default.png", Name, Email, Password, Location, Gender, Age, IsPublic, CreatedAt);
 	return temp;
 }
 

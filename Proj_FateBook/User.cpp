@@ -23,7 +23,7 @@ User::User()
 }
 
 User::User(
-    const string& Pfp,
+    const string& Pfp ,
     const string& NameStr,
     const string& EmailStr,
     const string& PasswordStr,
@@ -34,6 +34,7 @@ User::User(
     const Date& CreatedAtDate)
 {
     PfpPath = Pfp;
+    if (PfpPath.size() < 3) PfpPath = "assets/pfps/default.png";
     Name = NameStr;
     Email = EmailStr;
     Password = PasswordStr;
