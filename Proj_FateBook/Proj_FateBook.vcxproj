@@ -102,10 +102,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>E:\ray\raylib-5.5_win64_msvc16\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>E:\ray\raylib-5.5_win64_msvc16\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>raylib.lib;winmm.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -123,18 +126,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="button.h" />
     <ClInclude Include="Date.h" />
     <ClInclude Include="DoublyList.h" />
     <ClInclude Include="Fate_Book.h" />
     <ClInclude Include="Feed_Manager.h" />
+    <ClInclude Include="Login_Page.h" />
     <ClInclude Include="Post.h" />
     <ClInclude Include="Post_Manager.h" />
     <ClInclude Include="User.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="button.cpp" />
     <ClCompile Include="Date.cpp" />
     <ClCompile Include="Fate_Book.cpp" />
     <ClCompile Include="Feed_Manager.cpp" />
+    <ClCompile Include="Login_Page.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Post.cpp" />
     <ClCompile Include="Post_Manager.cpp" />

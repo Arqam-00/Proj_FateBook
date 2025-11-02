@@ -8,7 +8,7 @@ using namespace std;
 class PostManager
 {
     DoublyList<Post*> AllPosts_;
-    FeedManager Feed_;
+    Feed_Manager Feed_;
     void RemoveFromAllPosts(Post* P);
     void FinalizeDelete(Post* P);
 

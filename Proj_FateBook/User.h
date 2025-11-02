@@ -3,12 +3,14 @@
 #include <vector>
 #include "Date.h"
 #include "DoublyList.h"
-#include "Post.h"
+#include <raylib.h>
+#include <raymath.h>
+
 using namespace std;
 //Quddos,Fix the Feed logic for posts and Make the File_Manger to read from and Update files 
 //You can do it i m counting on You PARTTNER!!
 struct FriendRequest;
-class Post;
+struct Post;
 
 class User
 {
@@ -17,7 +19,7 @@ class User
     string GetCurrentTimeStamp() const;
 public:
     DoublyList<Post*> Posts;    
-
+    string PfpPath;
     string Name;
     string Email;
     string Password;
@@ -30,7 +32,9 @@ public:
 
 
     User();
-    User(const string& Name,
+    User(
+        const string& Pfp,
+        const string& Name,
         const string& Email,
         const string& Password,
         const string& Location,
@@ -57,6 +61,6 @@ public:
     bool DeletePost(Post* P);
     DoublyList<Post*> GetPosts() const;
     int GetPostCount() const;
-
+    void View_Profile(User* viewer) {}
 
 };
