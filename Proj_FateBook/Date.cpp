@@ -32,12 +32,4 @@ Date Date::NextDate()
     }
     return D;
 }
-time_t Date::ToTimeT()
-{
-    tm Time = {};
-    Time.tm_mday = Day;
-    Time.tm_mon = Month - 1;
-    Time.tm_year = Year - 1900;
-    return mktime(&Time);
-}
 

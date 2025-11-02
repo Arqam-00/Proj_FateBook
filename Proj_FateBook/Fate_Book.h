@@ -28,7 +28,7 @@ public:
     User* Check(const string& email, const string& password);
     void OpenFeed();
 
-    void load_from_file(const string& filename);
-    void write_into_file(const string& filename);
-
+    void load_from_file();
+    void write_into_file();
+    User* idToUser(int id);
 };

@@ -18,7 +18,8 @@ class User
     vector<FriendRequest*> FriendRequests;
     string GetCurrentTimeStamp() const;
 public:
-    DoublyList<Post*> Posts;    
+    DoublyList<Post*> Posts;  
+    static int NextID;
     int id;
     string PfpPath;
     string Name;

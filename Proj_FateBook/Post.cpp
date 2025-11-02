@@ -1,5 +1,6 @@
 #include "Post.h"
 
+int Post::NextPostID = 1;
 Post::Post()
 {
     Owner = nullptr;
@@ -25,6 +26,7 @@ Post::Post(User* OwnerPtr, const string& TextContent, bool Private)
     IsDeleted = false;
     TimeStamp = time(0);
     LikeCount = 0;
+    PostID = NextPostID++;
 }
 
 void Post::addImage(string Path) {

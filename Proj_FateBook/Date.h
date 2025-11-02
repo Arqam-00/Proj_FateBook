@@ -11,7 +11,5 @@ struct Date
     Date();
     Date(int D, int M, int Y);
     bool IsValid();
-
     Date NextDate();
-    time_t ToTimeT();
 };

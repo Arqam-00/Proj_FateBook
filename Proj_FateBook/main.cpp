@@ -2,7 +2,7 @@
 #include "Login_Page.h"
 
 int main() {
-    InitWindow(360, 640, "Fate_Book");
+    InitWindow(380, 680, "Fate_Book");
     SetTargetFPS(60);
 
     Fate_Book fateBook;

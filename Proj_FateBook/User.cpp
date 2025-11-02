@@ -9,6 +9,9 @@ struct FriendRequest
     bool IsRejected;
     FriendRequest() { From = nullptr; TimeStamp = ""; IsAccepted = false; IsRejected = false; }
 };
+
+int User::NextID = 1;
+
 User::User()
 {
     PfpPath = "";
@@ -32,7 +35,7 @@ User::User(
     int AgeInt,
     bool IsPublicBool,
     const Date& CreatedAtDate)
-{
+{   
     PfpPath=Pfp;
     Name = NameStr;
     Email = EmailStr;
@@ -42,6 +45,7 @@ User::User(
     Age = AgeInt;
     IsPublic = IsPublicBool;
     CreatedAt = CreatedAtDate;
+    id = NextID++;
 }
 User::~User()
 {
@@ -331,5 +335,5 @@ void View_Profile(User* profileOwner, User* viewer, Font font, int x, int y, int
     //UnloadTexture(pfp);
     EndScissorMode();
 }
-\
+
 void User::SetID(int _id) { id = _id; }

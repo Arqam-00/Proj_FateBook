@@ -22,6 +22,8 @@ struct Post
     vector<string> Paths;
     time_t TimeStamp;
     int LikeCount;
+    static int NextPostID;
+    int PostID;
     Post();
     Post(User* OwnerPtr, const string& TextContent, bool Private);
     void addImage(string Path);
