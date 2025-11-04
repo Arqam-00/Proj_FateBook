@@ -9,6 +9,9 @@ struct FriendRequest
     bool IsRejected;
     FriendRequest() { From = nullptr; TimeStamp = ""; IsAccepted = false; IsRejected = false; }
 };
+
+int User::NextID = 1;
+
 User::User()
 {
     PfpPath = "assets/pfps/default.png";
@@ -43,6 +46,7 @@ User::User(
     Age = AgeInt;
     IsPublic = IsPublicBool;
     CreatedAt = CreatedAtDate;
+    id = NextID++;
 }
 User::~User()
 {
