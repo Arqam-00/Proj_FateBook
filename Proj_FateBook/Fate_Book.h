@@ -10,7 +10,6 @@ class Fate_Book
     DoublyList<User*> Users_;
     PostManager PostMgr_;
     User* current_user;
-    //File_Manager Storage_;
     int user_id_counter;
 public:
     Fate_Book();
@@ -26,9 +25,8 @@ public:
     void DeleteUser();
     User* Check_By_Email(const string& email);
     User* Check(const string& email, const string& password);
-    void OpenFeed();
-
-    void load_from_file();
-    void write_into_file();
+    //Storage
+    //void load_from_file();
+    //void write_into_file();
     User* idToUser(int id);
 };

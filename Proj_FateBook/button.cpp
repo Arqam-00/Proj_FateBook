@@ -2,9 +2,9 @@
 #include<string>
 
 
-Button::Button(const char* imagePath, Vector2 imagePosition, float scale) {
+Button::Button(const char* imagePath, Vector2 imagePosition, float scale,bool Round) {
 
-
+    
     Image image = LoadImage(imagePath);
 
     int originalWidth = image.width;
@@ -14,6 +14,9 @@ Button::Button(const char* imagePath, Vector2 imagePosition, float scale) {
     int newHeight = static_cast<int>(originalHeight * scale);
 
     ImageResize(&image, newWidth, newHeight);
+    if (Round) {
+        MakeRound(image);
+    }
     texture = LoadTextureFromImage(image);
 
     UnloadImage(image);
@@ -49,4 +52,27 @@ bool Button::isPressed(Vector2 mousePos, bool mousePressed) {
         return true;
     }
     return false;
+}
+
+void Button::MakeRound(Image& image) {
+    ImageFormat(&image, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    int centerX = image.width / 2;
+    int centerY = image.height / 2;
+    float radius = std::min(centerX, centerY);
+    Color* pixels = LoadImageColors(image);
+    Image roundImage = GenImageColor(image.width, image.height, BLANK);
+    for (int y = 0; y < image.height; y++) {
+        for (int x = 0; x < image.width; x++) {
+            float dx = x - centerX;
+            float dy = y - centerY;
+            float distance = sqrtf(dx * dx + dy * dy);
+
+            if (distance <= radius) {
+                ImageDrawPixel(&roundImage, x, y, pixels[y * image.width + x]);
+            }
+        }
+    }
+    UnloadImage(image);
+    image = roundImage;
+    UnloadImageColors(pixels);
 }

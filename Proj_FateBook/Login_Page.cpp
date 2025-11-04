@@ -86,10 +86,8 @@ void LoginPage::HandleLoginInput() {
 //===================signiup--=========================
 void LoginPage::HandleSignupInput() {
     framesCounter++;
-
     Vector2 mouse = GetMousePosition();
     bool mousePressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
-
     //============Field rectangles
     Rectangle fieldBoxes[FIELD_COUNT] = {
         { 30, 100, 360, 40 },
@@ -100,7 +98,6 @@ void LoginPage::HandleSignupInput() {
         { 30, 500, 360, 40 },
         { 30, 580, 360, 40 }
     };
-
     if (mousePressed) {
         activeField = -1;
         for (int i = 0; i < FIELD_COUNT; i++) {
@@ -110,7 +107,6 @@ void LoginPage::HandleSignupInput() {
             }
         }
     }
-
     char* currentField = nullptr;
     switch (activeField) {
     case 0: currentField = name; break;
@@ -118,7 +114,6 @@ void LoginPage::HandleSignupInput() {
     case 2: currentField = password; break;
     case 3: currentField = address; break;
     }
-
     if (currentField) {
         int key = GetCharPressed();
         while (key > 0) {
@@ -138,7 +133,6 @@ void LoginPage::HandleSignupInput() {
         if (IsKeyPressed(KEY_UP)) age++;
         if (IsKeyPressed(KEY_DOWN) && age > 0) age--;
     }
-
     if (activeField == 5) {
         if (IsKeyPressed(KEY_UP)) day++;
         if (IsKeyPressed(KEY_DOWN) && day > 1) day--;
@@ -147,7 +141,6 @@ void LoginPage::HandleSignupInput() {
         if (IsKeyPressed(KEY_PAGE_UP)) year++;
         if (IsKeyPressed(KEY_PAGE_DOWN) && year > 1900) year--;
     }
-
     if (activeField == 6) {
         if (IsKeyPressed(KEY_M)) genderChar = 'M';
         if (IsKeyPressed(KEY_F)) genderChar = 'F';

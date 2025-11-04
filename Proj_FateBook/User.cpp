@@ -46,6 +46,7 @@ User::User(
     Age = AgeInt;
     IsPublic = IsPublicBool;
     CreatedAt = CreatedAtDate;
+    Posts.push_back(new Post(this, "Hlo"));
     id = NextID++;
 }
 User::~User()
@@ -151,13 +152,8 @@ bool User::IsFriend(User* Other) const
 int User::GetFriendCount() const { return Friends.size(); }
 DoublyList<User*> User::GetFriendsList() const { return Friends; }
 
-Post* User::CreatePost(const string& _Text, const vector<string>& _Paths, bool _HasImage, bool _HasVideo, bool _Private)
+Post* User::CreatePost(Post* P)
 {
-    Post* P = new Post(this, _Text, _Private);
-    P->HasImage = _HasImage;
-
-    P->HasVideo = _HasVideo;
-    P->Paths = _Paths;
     Posts.push_back(P);
     return P;
 }

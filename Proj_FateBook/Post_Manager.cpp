@@ -6,7 +6,7 @@ PostManager::~PostManager() {}
 
 Post* PostManager::CreatePost(User* Owner, const string& Text, const vector<string>& Paths, bool HasImage, bool HasVideo, bool Private) {
     if (!Owner) return nullptr;
-    Post* P = Owner->CreatePost(Text, Paths, HasImage, HasVideo, Private);
+    Post* P = Owner->CreatePost(new Post());
     AllPosts_.push_back(P);
     Feed_.Add(P);
     return P;

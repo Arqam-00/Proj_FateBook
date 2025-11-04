@@ -1,19 +1,20 @@
 #include"Fate_Book.h"
 #include<fstream>
 
-Fate_Book::Fate_Book():current_user(nullptr) {}
+Fate_Book::Fate_Book():Users_(), PostMgr_(),current_user(nullptr), user_id_counter(1){}
 Fate_Book::~Fate_Book(){
 	for (auto it = Users_.begin(); it != Users_.end(); ++it) {
 		delete* it;
 	}
 }
 bool Fate_Book::Initialize(){
-	load_from_file();
+	//load_from_file();
 	return true;
 }
 User* Fate_Book::CreateUser(const string& Name, const string& Email, const string& Password,
 	const string& Location, char Gender, int Age, bool IsPublic, const Date& CreatedAt){
 	if (Check_By_Email(Email)) {
+		return nullptr;
 	}
 	User* temp= new User("assets/pfps/default.png", Name, Email, Password, Location, Gender, Age, IsPublic, CreatedAt);
 	return temp;
@@ -74,7 +75,7 @@ void Fate_Book::DeleteUser(){
 	}
 	delete current_user;
 	current_user = nullptr;
-	write_into_file();
+	//write_into_file();
 
 }
 User* Fate_Book::Check_By_Email(const string& email){
@@ -86,10 +87,6 @@ User* Fate_Book::Check_By_Email(const string& email){
 	return nullptr;
 }
 
-void Fate_Book::OpenFeed(){
-	
-}
-
 User* Fate_Book::idToUser(int id) {
 	for (auto it = Users_.begin(); it != Users_.end(); ++it) {
 		if ((*it)->id == id)
@@ -98,7 +95,7 @@ User* Fate_Book::idToUser(int id) {
 	return nullptr;
 }
 
-
+/*
 void Fate_Book::load_from_file() {
 	ifstream userFile("users.txt");
 	ifstream postFile("posts.txt");
@@ -197,4 +194,4 @@ void Fate_Book::write_into_file() {
 	userFile.close();
 	postFile.close();
 	friendFile.close();
-}
+}*/

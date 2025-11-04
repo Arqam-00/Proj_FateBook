@@ -59,7 +59,7 @@ public:
     bool IsFriend(User* Other) const;
     int GetFriendCount() const;
     DoublyList<User*> GetFriendsList() const;
-    Post* CreatePost(const string& _Text, const vector<string>& Paths, bool _HasImage, bool _HasVideo, bool _Private);
+    Post* CreatePost(Post* P);
     bool DeletePost(Post* P);
     DoublyList<Post*> GetPosts() const;
     int GetPostCount() const;
