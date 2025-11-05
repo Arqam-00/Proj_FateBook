@@ -8,6 +8,10 @@ Fate_Book::~Fate_Book(){
 	}
 }
 bool Fate_Book::Initialize(){
+	/*for (int i = 0; i< 1 << 20; i++) {
+		for (int j = 0; j< 1 << 20; i++) {
+		}
+	}*/
 	//load_from_file();
 	return true;
 }

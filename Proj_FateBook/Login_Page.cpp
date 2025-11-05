@@ -194,14 +194,13 @@ void LoginPage::DrawSignupStep2() {
 
     Rectangle addressField = { 40, 180, 500, 55 };
     Rectangle ageField = { 40, 260, 500, 55 };
-    Rectangle dayField = { 40, 340, 150, 55 };
-    Rectangle monthField = { 210, 340, 150, 55 };
-    Rectangle yearField = { 380, 340, 160, 55 };
+    Rectangle dayField = { 40, 360, 150, 55 };
+    Rectangle monthField = { 210, 360, 150, 55 };
+    Rectangle yearField = { 380, 360, 160, 55 };
 
     DrawInputField("Address", signupData.address, addressField, activeField == 0);
     DrawInputField("Age", signupData.age, ageField, activeField == 1, false, true);
 
-    // Draw date fields exactly like email fields
     DrawInputField("Day", signupData.day, dayField, activeField == 2, false, stoi(signupData.day) < 1 || stoi(signupData.day) > 31);
     DrawInputField("Month", signupData.month, monthField, activeField == 3, false, stoi(signupData.month) < 1 || stoi(signupData.month) > 12);
     DrawInputField("Year", signupData.year, yearField, activeField == 4, false, stoi(signupData.year) < 1900);
@@ -237,11 +236,9 @@ void LoginPage::DrawGenderField() {
     Rectangle maleBtn = { 40, 450, 160, 50 };
     Rectangle femaleBtn = { 210, 450, 160, 50 };
     Rectangle otherBtn = { 380, 450, 160, 50 };
-
     Color maleColor = signupData.gender == 'M' ? BLUE : LIGHTGRAY;
     Color femaleColor = signupData.gender == 'F' ? BLUE : LIGHTGRAY;
     Color otherColor = signupData.gender == 'U' ? BLUE : LIGHTGRAY;
-
     DrawRectangleRec(maleBtn, maleColor);
     DrawRectangleRec(femaleBtn, femaleColor);
     DrawRectangleRec(otherBtn, otherColor);
@@ -370,9 +367,9 @@ void LoginPage::HandleSignupStep2Input() {
     Rectangle fields[] = {
         {40, 180, 500, 55},    // address
         {40, 260, 500, 55},    // age
-        {40, 340, 150, 55},    // day
-        {210, 340, 150, 55},   // month
-        {380, 340, 160, 55}    // year
+        {40, 360, 150, 55},    // day
+        {210, 360, 150, 55},   // month
+        {380, 360, 160, 55}    // year
     };
 
     for (int i = 0; i < 5; i++) {
