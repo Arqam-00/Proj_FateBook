@@ -42,7 +42,7 @@ void MainApp::SetCurrentUser(User* user) {
         profileBtn = new Button(currentUser->PfpPath.c_str(), { 460, 940 }, 70, 70, true);
     }
     else {
-        profileBtn = new Button("assets/utilities/default_pfp.png", { 460, 940 }, 70, 70, true);
+        profileBtn = new Button("assets/pfps/default.png", { 460, 940 }, 70, 70, true);
     }
 }
 

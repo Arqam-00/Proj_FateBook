@@ -138,12 +138,12 @@ void LoginPage::Draw() {
 }
 
 void LoginPage::DrawWelcome() {
-    DrawTextEx(font, "FateBook", { 1.0f * screenWidth / 2 - 100, 200 }, 48, 2, BLUE);
-    DrawTextEx(font, "Connect with your destiny", { 1.0f * screenWidth / 2 - 150, 270 }, 20, 1, DARKGRAY);
+    DrawTextEx(font, "FateBook", { 1.0f * screenWidth / 2 - 90, 200 }, 48, 2, BLUE);
+    DrawTextEx(font, "Connect with your destiny", { 1.0f * screenWidth / 2 - 110, 270 }, 20, 1, DARKGRAY);
     loginBtn->Draw();
     signupBtn->Draw();
     DrawTextEx(font, "New here? Create an account to get started!",
-        { 1.0f * screenWidth / 2 - 200, 400 }, 18, 1, GRAY);
+        { 1.0f * screenWidth / 2 - 150, 400 }, 18, 1, GRAY);
 }
 
 void LoginPage::DrawLogin() {
