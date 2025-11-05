@@ -3,7 +3,7 @@
 #include "Main_Screen.h"
 
 int main() {
-    InitWindow(420, 800, "Fate_Book");
+    InitWindow(580, 1020, "Fate_Book");
     SetTargetFPS(60);
 
     Fate_Book fateBook;

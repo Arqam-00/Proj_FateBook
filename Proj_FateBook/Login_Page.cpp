@@ -1,251 +1,481 @@
 #include "Login_Page.h"
 #include <iostream>
-using namespace std;
-
-#define FIELD_COUNT 7
+#include <algorithm>
 
 LoginPage::LoginPage(Fate_Book& fb)
-    : fateBook(fb), state(WELCOME), showPassword(false), resultUser(nullptr),
-    genderChar('U'), age(0), day(1), month(1), year(2000), framesCounter(0), activeField(-1)
-{
-    loginEmail[0] = loginPassword[0] = name[0] = email[0] = password[0] = address[0] = '\0';
+    : fateBook(fb), state(WELCOME), resultUser(nullptr),
+    activeField(0), showPassword(false) {
+    font = LoadFont("assets/static/Roboto_Condensed-Black.ttf");
+    loginBtn = new Button("assets/utilities/login.png", { 190, 500 }, 0.6f);
+    signupBtn = new Button("assets/utilities/signup.png", { 190, 600 }, 0.6f);
+    nextBtn = new Button("assets/utilities/next.png", { 480, 950 }, 0.12f);
+    backBtn = new Button("assets/utilities/back.png", { 40, 950 }, 0.12f);
+}
+
+LoginPage::~LoginPage() {
+    delete loginBtn;
+    delete signupBtn;
+    delete nextBtn;
+    delete backBtn;
 }
 
 void LoginPage::Load(Font f) {
     font = f;
 }
 
-
 void LoginPage::Reset() {
     state = WELCOME;
     resultUser = nullptr;
-    activeField = -1;
-    framesCounter = 0;
-    loginEmail[0] = loginPassword[0] = name[0] = email[0] = password[0] = address[0] = '\0';
-    genderChar = 'U';
-    age = 0;
-    day = 1; month = 1; year = 2000;
+    activeField = 0;
+    showPassword = false;
+    signupData = { "", "", "", "", "01", "01", "2000", "", 'U', false };
+    loginData = { "", "" };
 }
 
-bool LoginPage::AllFieldsFilled() const {
-    return strlen(name) > 0 && strlen(email) > 0 && strlen(password) > 0 && strlen(address) > 0 && age > 0;
+bool LoginPage::IsDone() const {
+    return state == DONE && resultUser != nullptr;
 }
 
-//=======================login-==================
-void LoginPage::HandleLoginInput() {
-    framesCounter++;
+User* LoginPage::GetUser() const {
+    return resultUser;
+}
 
+void LoginPage::Update() {
     Vector2 mouse = GetMousePosition();
-    bool mousePressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+    bool click = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 
-    Rectangle emailRect = { 30, 150, 360, 40 };
-    Rectangle passRect = { 30, 230, 360, 40 };
-
-    if (mousePressed) {
-        if (CheckCollisionPointRec(mouse, emailRect)) activeField = 0;
-        else if (CheckCollisionPointRec(mouse, passRect)) activeField = 1;
-        else activeField = -1;
+    if (state != WELCOME && backBtn->isPressed(mouse, click)) {
+        if (state == SIGNUP_STEP2) {
+            state = SIGNUP_STEP1;
+            activeField = 0;
+        }
+        else {
+            state = WELCOME;
+        }
+        return;
     }
 
-    char* currentField = (activeField == 0) ? loginEmail : (activeField == 1) ? loginPassword : nullptr;
-    if (currentField) {
-        int key = GetCharPressed();
-        while (key > 0) {
-            if ((key >= 32 && key <= 125) && strlen(currentField) < 254) {
-                int len = strlen(currentField);
-                currentField[len] = (char)key;
-                currentField[len + 1] = '\0';
-            }
-            key = GetCharPressed();
-        }
-
-        if (IsKeyPressed(KEY_BACKSPACE)) {
-            int len = strlen(currentField);
-            if (len > 0) currentField[len - 1] = '\0';
-        }
-    }
-
-    if (IsKeyPressed(KEY_ENTER)) {
-        string emailStr(loginEmail), passStr(loginPassword);
-        if (!emailStr.empty() && !passStr.empty()) {
-            resultUser = fateBook.Check(emailStr, passStr);
+    if (nextBtn->isPressed(mouse, click)) {
+        if (state == LOGIN) {
+            resultUser = fateBook.Check(loginData.email.c_str(), loginData.password.c_str());
             if (resultUser) state = DONE;
-            else {
-                cout << "Login failed!" << endl;
-                loginEmail[0] = loginPassword[0] = '\0';
+        }
+        else if (state == SIGNUP_STEP1 && ValidateCurrentStep()) {
+            state = SIGNUP_STEP2;
+            activeField = 0;
+        }
+        else if (state == SIGNUP_STEP2 && ValidateCurrentStep()) {
+            if (fateBook.Check_By_Email(signupData.email.c_str())) return;
+
+            int day = stoi(signupData.day);
+            int month = stoi(signupData.month);
+            int year = stoi(signupData.year);
+            int age = stoi(signupData.age);
+
+            Date dob(day, month, year);
+            if (!dob.IsValid()) return;
+
+            resultUser = fateBook.CreateUser(
+                signupData.name.c_str(),
+                signupData.email.c_str(),
+                signupData.password.c_str(),
+                signupData.address.c_str(),
+                signupData.gender,
+                age,
+                signupData.isPrivate,
+                dob
+            );
+
+            if (resultUser) {
+                fateBook.GetUsers()->push_back(resultUser);
+                state = DONE;
             }
         }
     }
 
-    if (IsKeyPressed(KEY_ESCAPE)) {
-        state = WELCOME;
-        activeField = -1;
+    switch (state) {
+    case WELCOME:
+        HandleWelcomeInput();
+        break;
+    case LOGIN:
+        HandleLoginInput();
+        break;
+    case SIGNUP_STEP1:
+        HandleSignupStep1Input();
+        break;
+    case SIGNUP_STEP2:
+        HandleSignupStep2Input();
+        break;
+    case DONE:
+        break;
     }
 }
 
-//===================signiup--=========================
-void LoginPage::HandleSignupInput() {
-    framesCounter++;
+void LoginPage::Draw() {
+    ClearBackground({ 245, 245, 245, 255 });
+
+    switch (state) {
+    case WELCOME:
+        DrawWelcome();
+        break;
+    case LOGIN:
+        DrawLogin();
+        break;
+    case SIGNUP_STEP1:
+        DrawSignupStep1();
+        break;
+    case SIGNUP_STEP2:
+        DrawSignupStep2();
+        break;
+    case DONE:
+        break;
+    }
+
+    if (state != WELCOME) {
+        nextBtn->Draw();
+        backBtn->Draw();
+    }
+}
+
+void LoginPage::DrawWelcome() {
+    DrawTextEx(font, "FateBook", { 1.0f * screenWidth / 2 - 100, 200 }, 48, 2, BLUE);
+    DrawTextEx(font, "Connect with your destiny", { 1.0f * screenWidth / 2 - 150, 270 }, 20, 1, DARKGRAY);
+    loginBtn->Draw();
+    signupBtn->Draw();
+    DrawTextEx(font, "New here? Create an account to get started!",
+        { 1.0f * screenWidth / 2 - 200, 400 }, 18, 1, GRAY);
+}
+
+void LoginPage::DrawLogin() {
+    DrawTextEx(font, "Welcome Back", { 1.0f * screenWidth / 2 - 120, 120 }, 36, 2, DARKBLUE);
+
+    Rectangle emailField = { 40, 220, 500, 60 };
+    Rectangle passwordField = { 40, 310, 500, 60 };
+    DrawInputField("Email", loginData.email, emailField, activeField == 0);
+    DrawInputField("Password", loginData.password, passwordField, activeField == 1, true);
+
+    Rectangle toggleRect = { 460, 325, 70, 30 };
+    DrawRectangleRec(toggleRect, LIGHTGRAY);
+    DrawTextEx(font, showPassword ? "Hide" : "Show", { 465, 330 }, 14, 1, DARKGRAY);
+
+    bool canLogin = !loginData.email.empty() && !loginData.password.empty();
+    DrawButton("Log In", { 40, 420, 500, 60 }, canLogin);
+    DrawTextEx(font, "Don't have an account? Go back and sign up!",
+        { 40, 500 }, 16, 1, GRAY);
+}
+
+void LoginPage::DrawSignupStep1() {
+    DrawTextEx(font, "Create Account", {1.0f* screenWidth / 2 - 120, 80 }, 36, 2, DARKBLUE);
+    DrawTextEx(font, "Step 1: Basic Information", { 1.0f * screenWidth / 2 - 140, 130 }, 20, 1, DARKGRAY);
+
+    Rectangle nameField = { 40, 180, 500, 55 };
+    Rectangle emailField = { 40, 260, 500, 55 };
+    Rectangle passwordField = { 40, 340, 500, 55 };
+
+    DrawInputField("Full Name", signupData.name, nameField, activeField == 0);
+    DrawInputField("Email", signupData.email, emailField, activeField == 1);
+
+    string passwordDisplay = showPassword ? signupData.password : string(signupData.password.length(), '*');
+    DrawInputField("Password", passwordDisplay, passwordField, activeField == 2);
+
+    if (!signupData.password.empty()) {
+        Color strengthColor = signupData.password.length() >= 8 ? GREEN : ORANGE;
+        DrawRectangle(40, 400, (signupData.password.length() * 500 / 16), 5, strengthColor);
+        DrawTextEx(font, "Password strength", { 40, 410 }, 14, 1, DARKGRAY);
+    }
+
+    bool canContinue = !signupData.name.empty() && !signupData.email.empty() && signupData.password.length() >= 8;
+    DrawButton("Continue", { 40, 450, 500, 60 }, canContinue);
+}
+
+void LoginPage::DrawSignupStep2() {
+    DrawTextEx(font, "Create Account", { 1.0f * screenWidth / 2 - 120, 80 }, 36, 2, DARKBLUE);
+    DrawTextEx(font, "Step 2: Additional Information", { 1.0f * screenWidth / 2 - 160, 130 }, 20, 1, DARKGRAY);
+
+    Rectangle addressField = { 40, 180, 500, 55 };
+    Rectangle ageField = { 40, 260, 500, 55 };
+    Rectangle dayField = { 40, 340, 150, 55 };
+    Rectangle monthField = { 210, 340, 150, 55 };
+    Rectangle yearField = { 380, 340, 160, 55 };
+
+    DrawInputField("Address", signupData.address, addressField, activeField == 0);
+    DrawInputField("Age", signupData.age, ageField, activeField == 1, false, true);
+
+    // Draw date fields exactly like email fields
+    DrawInputField("Day", signupData.day, dayField, activeField == 2, false, stoi(signupData.day) < 1 || stoi(signupData.day) > 31);
+    DrawInputField("Month", signupData.month, monthField, activeField == 3, false, stoi(signupData.month) < 1 || stoi(signupData.month) > 12);
+    DrawInputField("Year", signupData.year, yearField, activeField == 4, false, stoi(signupData.year) < 1900);
+
+    DrawTextEx(font, "Gender", { 40, 420 }, 20, 1, BLACK);
+    DrawGenderField();
+
+    DrawPrivacyField();
+
+    bool canSignup = ValidateCurrentStep();
+    DrawButton("Create Account", { 40, 650, 500, 60 }, canSignup);
+}
+
+void LoginPage::DrawInputField(const string& label, const string& value, Rectangle bounds, bool isActive, bool isPassword, bool showError) {
+    DrawTextEx(font, label.c_str(), { bounds.x, bounds.y - 25 }, 18, 1, BLACK);
+    Color borderColor = showError ? RED : (isActive ? BLUE : GRAY);
+    DrawRectangleRec(bounds, WHITE);
+    DrawRectangleLinesEx(bounds, 2, borderColor);
+    Color textColor = value.empty() ? GRAY : BLACK;
+    string displayText = value.empty() ? "Enter " + label : value;
+    if (isPassword && !value.empty()) {
+        displayText = string(value.length(), '*');
+    }
+    Vector2 textSize = MeasureTextEx(font, displayText.c_str(), 20, 1);
+    float textY = bounds.y + (bounds.height - textSize.y) / 2;
+    DrawTextEx(font, displayText.c_str(), { bounds.x + 10, textY }, 20, 1, textColor);
+    if (showError) {
+        DrawTextEx(font, "Invalid input", { bounds.x, bounds.y + bounds.height + 5 }, 14, 1, RED);
+    }
+}
+
+void LoginPage::DrawGenderField() {
+    Rectangle maleBtn = { 40, 450, 160, 50 };
+    Rectangle femaleBtn = { 210, 450, 160, 50 };
+    Rectangle otherBtn = { 380, 450, 160, 50 };
+
+    Color maleColor = signupData.gender == 'M' ? BLUE : LIGHTGRAY;
+    Color femaleColor = signupData.gender == 'F' ? BLUE : LIGHTGRAY;
+    Color otherColor = signupData.gender == 'U' ? BLUE : LIGHTGRAY;
+
+    DrawRectangleRec(maleBtn, maleColor);
+    DrawRectangleRec(femaleBtn, femaleColor);
+    DrawRectangleRec(otherBtn, otherColor);
+
+    DrawRectangleLinesEx(maleBtn, 2, DARKGRAY);
+    DrawRectangleLinesEx(femaleBtn, 2, DARKGRAY);
+    DrawRectangleLinesEx(otherBtn, 2, DARKGRAY);
+
+    Vector2 maleTextSize = MeasureTextEx(font, "Male", 18, 1);
+    Vector2 femaleTextSize = MeasureTextEx(font, "Female", 18, 1);
+    Vector2 otherTextSize = MeasureTextEx(font, "Other", 18, 1);
+
+    DrawTextEx(font, "Male", { maleBtn.x + (maleBtn.width - maleTextSize.x) / 2, maleBtn.y + (maleBtn.height - maleTextSize.y) / 2 }, 18, 1, WHITE);
+    DrawTextEx(font, "Female", { femaleBtn.x + (femaleBtn.width - femaleTextSize.x) / 2, femaleBtn.y + (femaleBtn.height - femaleTextSize.y) / 2 }, 18, 1, WHITE);
+    DrawTextEx(font, "Other", { otherBtn.x + (otherBtn.width - otherTextSize.x) / 2, otherBtn.y + (otherBtn.height - otherTextSize.y) / 2 }, 18, 1, WHITE);
+}
+
+void LoginPage::DrawPrivacyField() {
+    DrawTextEx(font, "Account Privacy", { 40, 520 }, 20, 1, BLACK);
+
+    Rectangle checkbox = { 40, 550, 30, 30 };
+    DrawRectangleRec(checkbox, WHITE);
+    DrawRectangleLinesEx(checkbox, 2, GRAY);
+
+    if (signupData.isPrivate) {
+        DrawRectangle(checkbox.x + 5, checkbox.y + 5, 20, 20, BLUE);
+    }
+
+    DrawTextEx(font, "Private Account", { 80, 555 }, 18, 1, BLACK);
+    DrawTextEx(font, "Only approved followers can see your content", { 40, 585 }, 14, 1, GRAY);
+}
+
+void LoginPage::DrawButton(const string& text, Rectangle bounds, bool enabled) {
+    Color btnColor = enabled ? BLUE : GRAY;
+    DrawRectangleRec(bounds, btnColor);
+    DrawRectangleLinesEx(bounds, 2, enabled ? DARKBLUE : DARKGRAY);
+
+    Vector2 textSize = MeasureTextEx(font, text.c_str(), 22, 1);
+    DrawTextEx(font, text.c_str(),
+        { bounds.x + (bounds.width / 2) - textSize.x / 2,
+          bounds.y + (bounds.height / 2) - textSize.y / 2 },
+        22, 1, WHITE);
+}
+
+void LoginPage::HandleWelcomeInput() {
     Vector2 mouse = GetMousePosition();
-    bool mousePressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
-    //============Field rectangles
-    Rectangle fieldBoxes[FIELD_COUNT] = {
-        { 30, 100, 360, 40 },
-        { 30, 180, 360, 40 },
-        { 30, 260, 360, 40 },
-        { 30, 340, 360, 40 },
-        { 30, 420, 360, 40 },
-        { 30, 500, 360, 40 },
-        { 30, 580, 360, 40 }
+    bool click = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+
+    if (loginBtn->isPressed(mouse, click)) {
+        state = LOGIN;
+        activeField = 0;
+    }
+    if (signupBtn->isPressed(mouse, click)) {
+        state = SIGNUP_STEP1;
+        activeField = 0;
+    }
+}
+
+void LoginPage::HandleLoginInput() {
+    Vector2 mouse = GetMousePosition();
+    bool click = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+
+    Rectangle fields[] = { {40, 220, 500, 60}, {40, 310, 500, 60} };
+    for (int i = 0; i < 2; i++) {
+        if (click && CheckCollisionPointRec(mouse, fields[i])) {
+            activeField = i;
+        }
+    }
+
+    if (activeField == 0) ProcessTextInput(loginData.email, 255);
+    if (activeField == 1) ProcessTextInput(loginData.password, 255);
+
+    Rectangle toggleRect = { 460, 325, 70, 30 };
+    if (click && CheckCollisionPointRec(mouse, toggleRect)) {
+        showPassword = !showPassword;
+    }
+
+    Rectangle loginButton = { 40, 420, 500, 60 };
+    if (click && CheckCollisionPointRec(mouse, loginButton) && !loginData.email.empty() && !loginData.password.empty()) {
+        resultUser = fateBook.Check(loginData.email.c_str(), loginData.password.c_str());
+        if (resultUser) {
+            state = DONE;
+        }
+        else {
+            loginData.password.clear();
+        }
+    }
+}
+
+void LoginPage::HandleSignupStep1Input() {
+    Vector2 mouse = GetMousePosition();
+    bool click = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+
+    Rectangle fields[] = { {40, 180, 500, 55}, {40, 260, 500, 55}, {40, 340, 500, 55} };
+    for (int i = 0; i < 3; i++) {
+        if (click && CheckCollisionPointRec(mouse, fields[i])) {
+            activeField = i;
+        }
+    }
+
+    if (activeField == 0) ProcessTextInput(signupData.name, 255);
+    if (activeField == 1) ProcessTextInput(signupData.email, 255);
+    if (activeField == 2) ProcessTextInput(signupData.password, 255);
+
+    Rectangle continueButton = { 40, 450, 500, 60 };
+    if (click && CheckCollisionPointRec(mouse, continueButton) && ValidateCurrentStep()) {
+        state = SIGNUP_STEP2;
+        activeField = 0;
+    }
+}
+
+void LoginPage::HandleSignupStep2Input() {
+    Vector2 mouse = GetMousePosition();
+    bool click = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+
+    Rectangle maleBtn = { 40, 450, 160, 50 };
+    Rectangle femaleBtn = { 210, 450, 160, 50 };
+    Rectangle otherBtn = { 380, 450, 160, 50 };
+    Rectangle privacyBox = { 40, 550, 30, 30 };
+
+    if (click && CheckCollisionPointRec(mouse, maleBtn)) signupData.gender = 'M';
+    if (click && CheckCollisionPointRec(mouse, femaleBtn)) signupData.gender = 'F';
+    if (click && CheckCollisionPointRec(mouse, otherBtn)) signupData.gender = 'U';
+    if (click && CheckCollisionPointRec(mouse, privacyBox)) signupData.isPrivate = !signupData.isPrivate;
+
+    Rectangle fields[] = {
+        {40, 180, 500, 55},    // address
+        {40, 260, 500, 55},    // age
+        {40, 340, 150, 55},    // day
+        {210, 340, 150, 55},   // month
+        {380, 340, 160, 55}    // year
     };
-    if (mousePressed) {
-        activeField = -1;
-        for (int i = 0; i < FIELD_COUNT; i++) {
-            if (CheckCollisionPointRec(mouse, fieldBoxes[i])) {
-                activeField = i;
-                break;
-            }
+
+    for (int i = 0; i < 5; i++) {
+        if (click && CheckCollisionPointRec(mouse, fields[i])) {
+            activeField = i;
         }
     }
-    char* currentField = nullptr;
-    switch (activeField) {
-    case 0: currentField = name; break;
-    case 1: currentField = email; break;
-    case 2: currentField = password; break;
-    case 3: currentField = address; break;
-    }
-    if (currentField) {
-        int key = GetCharPressed();
-        while (key > 0) {
-            if ((key >= 32 && key <= 125) && strlen(currentField) < 254) {
-                int len = strlen(currentField);
-                currentField[len] = (char)key;
-                currentField[len + 1] = '\0';
-            }
-            key = GetCharPressed();
-        }
-        if (IsKeyPressed(KEY_BACKSPACE)) {
-            int len = strlen(currentField);
-            if (len > 0) currentField[len - 1] = '\0';
-        }
-    }
-    if (activeField == 4) {
-        if (IsKeyPressed(KEY_UP)) age++;
-        if (IsKeyPressed(KEY_DOWN) && age > 0) age--;
-    }
-    if (activeField == 5) {
-        if (IsKeyPressed(KEY_UP)) day++;
-        if (IsKeyPressed(KEY_DOWN) && day > 1) day--;
-        if (IsKeyPressed(KEY_RIGHT)) month++;
-        if (IsKeyPressed(KEY_LEFT) && month > 1) month--;
-        if (IsKeyPressed(KEY_PAGE_UP)) year++;
-        if (IsKeyPressed(KEY_PAGE_DOWN) && year > 1900) year--;
-    }
-    if (activeField == 6) {
-        if (IsKeyPressed(KEY_M)) genderChar = 'M';
-        if (IsKeyPressed(KEY_F)) genderChar = 'F';
-        if (IsKeyPressed(KEY_U)) genderChar = 'U';
-    }
-    if (IsKeyPressed(KEY_ENTER)) {
-        if (!AllFieldsFilled()) {
-            cout << "Please fill all fields!" << endl;
-            return;
-        }
+
+    if (activeField == 0) ProcessTextInput(signupData.address, 255);
+    if (activeField == 1) ProcessTextInput(signupData.age, 3, true);
+    if (activeField == 2) ProcessTextInput(signupData.day, 2, true);
+    if (activeField == 3) ProcessTextInput(signupData.month, 2, true);
+    if (activeField == 4) ProcessTextInput(signupData.year, 4, true);
+
+    Rectangle createButton = { 40, 650, 500, 60 };
+    if (click && CheckCollisionPointRec(mouse, createButton) && ValidateCurrentStep()) {
+        if (fateBook.Check_By_Email(signupData.email.c_str())) return;
+
+        int day = stoi(signupData.day);
+        int month = stoi(signupData.month);
+        int year = stoi(signupData.year);
+        int age = stoi(signupData.age);
+
         Date dob(day, month, year);
-        if (!dob.IsValid()) {
-            cout << "Invalid date!" << endl;
-            return;
-        }
-        if (fateBook.Check_By_Email(email)) {
-            cout << "Email exists!" << endl;
-            return;
-        }
-        resultUser = fateBook.CreateUser(name, email, password, address,
-            genderChar, age, true, dob);
+        if (!dob.IsValid()) return;
+
+        resultUser = fateBook.CreateUser(
+            signupData.name.c_str(),
+            signupData.email.c_str(),
+            signupData.password.c_str(),
+            signupData.address.c_str(),
+            signupData.gender,
+            age,
+            signupData.isPrivate,
+            dob
+        );
+
         if (resultUser) {
             fateBook.GetUsers()->push_back(resultUser);
             state = DONE;
         }
     }
-    if (IsKeyPressed(KEY_ESCAPE)) {
-        state = WELCOME;
-        activeField = -1;
+}
+
+void LoginPage::ProcessTextInput(string& field, int maxLength, bool numbersOnly) {
+    int key = GetCharPressed();
+    while (key > 0) {
+        if (field.length() < maxLength) {
+            if (numbersOnly) {
+                if (key >= '0' && key <= '9') {
+                    field += (char)key;
+                }
+            }
+            else {
+                if (key >= 32 && key <= 125) {
+                    field += (char)key;
+                }
+            }
+        }
+        key = GetCharPressed();
+    }
+
+    if (IsKeyPressed(KEY_BACKSPACE) && !field.empty()) {
+        field.pop_back();
     }
 }
 
-//========================update--======================
-void LoginPage::Update() {
-    if (state == WELCOME) {
-        Vector2 mouse = GetMousePosition();
-        bool click = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
-        Rectangle loginBtn = { 110, 300, 200, 50 };
-        Rectangle signupBtn = { 110, 380, 200, 50 };
-        if (click && CheckCollisionPointRec(mouse, loginBtn)) {
-            state = LOGIN; activeField = -1;
-        }
-        else if (click && CheckCollisionPointRec(mouse, signupBtn)) {
-            state = SIGNUP; activeField = -1;
-        }
+bool LoginPage::ValidateCurrentStep() {
+    switch (state) {
+    case SIGNUP_STEP1:
+        return !signupData.name.empty() &&
+            !signupData.email.empty() &&
+            IsValidEmail(signupData.email) &&
+            signupData.password.length() >= 8;
+
+    case SIGNUP_STEP2:
+        return !signupData.address.empty() &&
+            !signupData.age.empty() &&
+            IsValidDate() &&
+            stoi(signupData.age) > 0;
+
+    default:
+        return true;
     }
-    else if (state == LOGIN) HandleLoginInput();
-    else if (state == SIGNUP) HandleSignupInput();
 }
 
-//==========================================Draw------------------------------
-void LoginPage::Draw() {
-    ClearBackground(RAYWHITE);
-    int centerX = 210;
+bool LoginPage::IsValidEmail(const string& email) {
+    return email.find('@') != string::npos &&
+        email.find('.') != string::npos &&
+        email.length() > 5;
+}
 
-    if (state == WELCOME) {
-        DrawText("Fate_Book", centerX - 90, 120, 40, DARKBLUE);
-        DrawRectangle(110, 300, 200, 50, BLUE);
-        DrawText("Login", centerX - 40, 315, 25, WHITE);
-        DrawRectangle(110, 380, 200, 50, DARKGREEN);
-        DrawText("Sign Up", centerX - 55, 395, 25, WHITE);
-        return;
+bool LoginPage::IsValidDate() {
+    try {
+        int day = stoi(signupData.day);
+        int month = stoi(signupData.month);
+        int year = stoi(signupData.year);
+
+        return day >= 1 && day <= 31 &&
+            month >= 1 && month <= 12 &&
+            year >= 1900 && year <= 2024;
     }
-
-    if (state == LOGIN) {
-        DrawText("Login", centerX - 35, 50, 30, DARKBLUE);
-        DrawText("Email:", 30, 120, 18, BLACK);
-        DrawRectangle(30, 150, 360, 40, (activeField == 0) ? BLUE : LIGHTGRAY);
-        DrawText(loginEmail, 35, 160, 20, DARKGRAY);
-        DrawText("Password:", 30, 200, 18, BLACK);
-        DrawRectangle(30, 230, 360, 40, (activeField == 1) ? BLUE : LIGHTGRAY);
-        string hidden = string(strlen(loginPassword), '*');
-        DrawText(hidden.c_str(), 35, 240, 20, DARKGRAY);
-        DrawText("Press ENTER to Login", 30, 300, 16, GRAY);
-        DrawText("Press ESC to go back", 30, 320, 16, GRAY);
-        return;
-    }
-
-    if (state == SIGNUP) {
-        DrawText("Sign Up", centerX - 45, 50, 30, DARKBLUE);
-
-        DrawText("Name:", 30, 80, 18, BLACK);
-        DrawRectangle(30, 100, 360, 40, (activeField == 0) ? BLUE : LIGHTGRAY);
-        DrawText(name, 35, 110, 20, DARKGRAY);
-
-        DrawText("Email:", 30, 160, 18, BLACK);
-        DrawRectangle(30, 180, 360, 40, (activeField == 1) ? BLUE : LIGHTGRAY);
-        DrawText(email, 35, 190, 20, DARKGRAY);
-        DrawText("Password:", 30, 240, 18, BLACK);
-        DrawRectangle(30, 260, 360, 40, (activeField == 2) ? BLUE : LIGHTGRAY);
-        DrawText(password, 35, 270, 20, DARKGRAY);
-        DrawText("Address:", 30, 320, 18, BLACK);
-        DrawRectangle(30, 340, 360, 40, (activeField == 3) ? BLUE : LIGHTGRAY);
-        DrawText(address, 35, 350, 20, DARKGRAY);
-        DrawText(TextFormat("Age: %d", age), 30, 400, 18, BLACK);
-        DrawRectangle(30, 420, 360, 40, (activeField == 4) ? BLUE : LIGHTGRAY);
-        DrawText("Use UP/DOWN to change", 35, 430, 18, GRAY);
-
-        DrawText(TextFormat("DOB: %d/%d/%d", day, month, year), 30, 480, 18, BLACK);
-        DrawRectangle(30, 500, 360, 40, (activeField == 5) ? BLUE : LIGHTGRAY);
-        DrawText("UP/DOWN=Day  LEFT/RIGHT=Month  PGUP/PGDN=Year", 35, 510, 14, GRAY);
-        DrawText(TextFormat("Gender: %c", genderChar), 30, 560, 18, BLACK);
-        DrawRectangle(30, 580, 360, 40, (activeField == 6) ? BLUE : LIGHTGRAY);
-        DrawText("Press M / F / U", 35, 590, 18, GRAY);
-        DrawText("Press ENTER to Sign Up", 30, 650, 18, GRAY);
-        DrawText("Press ESC to go back", 30, 670, 18, GRAY);
+    catch (...) {
+        return false;
     }
 }

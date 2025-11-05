@@ -10,7 +10,6 @@ struct FriendRequest
     FriendRequest() { From = nullptr; TimeStamp = ""; IsAccepted = false; IsRejected = false; }
 };
 
-int User::NextID = 1;
 
 User::User()
 {
@@ -47,7 +46,7 @@ User::User(
     IsPublic = IsPublicBool;
     CreatedAt = CreatedAtDate;
     Posts.push_back(new Post(this, "Hlo"));
-    id = NextID++;
+    id = 0;
 }
 User::~User()
 {
@@ -179,25 +178,23 @@ string User::GetCurrentTimeStamp() const
     time_t t = time(0);
     return to_string(t);
 }
-void User::View_Profile(User* profileOwner, User* viewer, Font font, int x, int y, int width)
-{
+void User::View_Profile(User* profileOwner, User* viewer, Font font, int x, int y, int width) {
     const int padding = 20;
     const int pfpSize = 100;
     const int scrollSpeed = 10;
+    const int viewHeight = 1020 - y - 10;
     static int scrollOffset = 0;
+
+    // Scroll control
     scrollOffset -= (int)(GetMouseWheelMove() * 40);
     if (IsKeyDown(KEY_DOWN)) scrollOffset += scrollSpeed;
     if (IsKeyDown(KEY_UP))   scrollOffset -= scrollSpeed;
-    const int viewHeight = 800 - y - 10;
-    if (viewHeight <= 0) return;
-    int measureY = y + padding;
 
-    measureY += pfpSize + 10;
-    measureY += 40;
-    //measureY += 10 + 100 + 20;
-    measureY += 10 + 40; 
+    // Measure total content height
+    int measureY = y + padding;
+    measureY += pfpSize + 10 + 40 + 10 + 100 + 20;
     if (viewer == profileOwner)
-        measureY += (int)profileOwner->GetPendingFriendRequests().size() * 35;
+        measureY += (int)profileOwner->GetPendingFriendRequests().size() * 35 + 30;
     measureY += 20 + 30;
     measureY += (int)profileOwner->GetFriendsList().size() * 30;
     measureY += 20 + 30;
@@ -208,17 +205,13 @@ void User::View_Profile(User* profileOwner, User* viewer, Font font, int x, int 
 
     int totalHeight = measureY - (y + padding);
     if (totalHeight < viewHeight) totalHeight = viewHeight;
+    scrollOffset = Clamp(scrollOffset, 0, totalHeight - viewHeight);
 
-    if (scrollOffset < 0) scrollOffset = 0;
-    if (scrollOffset > totalHeight - viewHeight)
-        scrollOffset = totalHeight - viewHeight;
     BeginScissorMode(x, y, width, viewHeight);
-
     int cursorY = y + padding - scrollOffset;
 
-//
-// ============pfp
-      if (!IsTextureValid(profileOwner->PfpTexture) && !profileOwner->PfpPath.empty())
+    // === Profile Picture
+    if (!IsTextureValid(profileOwner->PfpTexture) && !profileOwner->PfpPath.empty())
         profileOwner->PfpTexture = LoadTexture(profileOwner->PfpPath.c_str());
 
     Texture2D pfp = profileOwner->PfpTexture;
@@ -229,33 +222,87 @@ void User::View_Profile(User* profileOwner, User* viewer, Font font, int x, int 
     else
         DrawCircleLines(pfpPos.x + pfpSize / 2, pfpPos.y + pfpSize / 2, pfpSize / 2, GRAY);
     cursorY += pfpSize + 10;
+
+    // === Name
     string name = profileOwner->GetName();
     float nameW = MeasureTextEx(font, name.c_str(), 28, 1).x;
     DrawTextEx(font, name.c_str(), { (float)x + width / 2 - nameW / 2, (float)cursorY }, 28, 1, DARKBLUE);
     cursorY += 40;
+
+    // === Settings Button (owner only)
+    if (viewer == profileOwner) {
+        Button* settingsBtn = new Button("assets/utilities/settings.png", { (float)(x + width - 40), (float)y + 10 }, 0.8f);
+        settingsBtn->Draw();
+        if (settingsBtn->isPressed(GetMousePosition(), IsMouseButtonPressed(MOUSE_LEFT_BUTTON))) {
+            //OpenSettingsView(profileOwner);
+        }
+        delete settingsBtn;
+    }
+
     DrawLine(x + padding, cursorY, x + width - padding, cursorY, Fade(GRAY, 0.3f));
     cursorY += 10;
 
-    //===========user info-------------------
+    // === Info Box
     Rectangle info = { (float)x + padding, (float)cursorY, (float)(width - 2 * padding), 100 };
     DrawRectangleRounded(info, 0.05f, 8, Fade(LIGHTGRAY, 0.2f));
-    string s = (u8"\U0001F464 Gender: " + profileOwner->Gender);
-    DrawTextEx(font, s.c_str(), { info.x + 10, info.y + 10 }, 20, 1, GRAY);
+    DrawTextEx(font, string(u8"\U0001F464 Gender: " + profileOwner->Gender).c_str(), { info.x + 10, info.y + 10 }, 20, 1, GRAY);
     DrawTextEx(font, (u8"\U0001F4C5 Age: " + std::to_string(profileOwner->Age)).c_str(), { info.x + 200, info.y + 10 }, 20, 1, GRAY);
     if (viewer == profileOwner || profileOwner->IsFriend(viewer))
         DrawTextEx(font, (u8"\U0001F4CD Location: " + profileOwner->Location).c_str(), { info.x + 10, info.y + 40 }, 20, 1, GRAY);
     if (viewer == profileOwner)
         DrawTextEx(font, (u8"\U0001F4E7 Email: " + profileOwner->GetEmail()).c_str(), { info.x + 10, info.y + 70 }, 20, 1, GRAY);
-
     cursorY += info.height + 20;
 
-    //===============friend
+    // === Incoming Friend Requests (owner only)
+    if (viewer == profileOwner) {
+        vector<FriendRequest*> requests = profileOwner->GetPendingFriendRequests();
+        if (!requests.empty()) {
+            DrawTextEx(font, "Pending Friend Requests", { (float)x + padding, (float)cursorY }, 20, 1, DARKGRAY);
+            cursorY += 30;
+
+            for (FriendRequest* req : requests) {
+                string reqText = u8"\U0001F464 " + req->From->GetName();
+                DrawTextEx(font, reqText.c_str(), { (float)x + padding, (float)cursorY }, 18, 1, DARKGRAY);
+
+                Button* acceptBtn = new Button("assets/utilities/accept.png", { (float)x + width - 90, (float)cursorY }, 0.6f);
+                acceptBtn->Draw();
+                if (acceptBtn->isPressed(GetMousePosition(), IsMouseButtonPressed(MOUSE_LEFT_BUTTON))) {
+                    profileOwner->AcceptFriendRequest(req);
+                }
+                delete acceptBtn;
+
+                Button* declineBtn = new Button("assets/utilities/delete.png", { (float)x + width - 50, (float)cursorY }, 0.6f);
+                declineBtn->Draw();
+                if (declineBtn->isPressed(GetMousePosition(), IsMouseButtonPressed(MOUSE_LEFT_BUTTON))) {
+                    profileOwner->DeclineFriendRequest(req->From);
+                }
+                delete declineBtn;
+
+                cursorY += 35;
+            }
+
+            cursorY += 10;
+        }
+    }
+
+    // === Friends
     DrawLine(x + padding, cursorY, x + width - padding, cursorY, Fade(GRAY, 0.3f));
     cursorY += 10;
     DrawTextEx(font, (u8"\U0001F465 Friends: " + std::to_string(profileOwner->GetFriendCount())).c_str(), { (float)x + padding, (float)cursorY }, 20, 1, DARKGRAY);
-    cursorY += 40;
+    cursorY += 30;
+    for (User* friendUser : profileOwner->GetFriendsList()) {
+        DrawTextEx(font, friendUser->GetName().c_str(), { (float)x + padding, (float)cursorY }, 18, 1, DARKGRAY);
+        Button* unfriendBtn = new Button("assets/utilities/delete.png", { (float)x + width - 50, (float)cursorY }, 0.6f);
+        unfriendBtn->Draw();
+        if (unfriendBtn->isPressed(GetMousePosition(), IsMouseButtonPressed(MOUSE_LEFT_BUTTON))) {
+            profileOwner->RemoveFriend(friendUser);
+        }
+        delete unfriendBtn;
+        cursorY += 30;
+    }
 
-    //==============posts
+    // === Posts
+    cursorY += 20;
     DrawTextEx(font, "Posts", { (float)x + padding, (float)cursorY }, 22, 1, BLACK);
     cursorY += 30;
     for (auto& post : profileOwner->GetPosts()) {
@@ -265,8 +312,20 @@ void User::View_Profile(User* profileOwner, User* viewer, Font font, int x, int 
         DrawRectangleRounded(card, 0.05f, 8, Fade(LIGHTGRAY, 0.3f));
         DrawRectangleRoundedLines(card, 0.05f, 8, Fade(GRAY, 0.2f));
         post->DrawPost((int)card.x + 10, (int)card.y + 10, (int)card.width - 20, viewer);
+
+        if (viewer == profileOwner) {
+            Button* deleteBtn = new Button("assets/utilities/delete.png", { card.x + card.width - 40, card.y + 10 }, 0.8f);
+            deleteBtn->Draw();
+            if (deleteBtn->isPressed(GetMousePosition(), IsMouseButtonPressed(MOUSE_LEFT_BUTTON))) {
+                profileOwner->DeletePost(post);
+            }
+            delete deleteBtn;
+        }
+
         cursorY += card.height + 15;
     }
+
     EndScissorMode();
 }
+
 void User::SetID(int _id) { id = _id; }

@@ -26,7 +26,7 @@ struct Post
 
     Post();
     Post(User* OwnerPtr, const string& TextContent, bool Private = false);
-    void addImage(string Path) {
+    void AddImage(string Path) {
         Media_Paths.push_back(Path);
     }
     bool IsVisibleTo(const User* viewer) const {
@@ -46,9 +46,6 @@ struct Post
         }
     }
     void like(User*& U) {
-        for (auto i = LikedBy.begin(); i != LikedBy.end(); i++) {
-            if (*i == U->id)return;
-        }
         LikedBy.push_back(U->id);
     }
     void InitButtons(User* viewer) {

@@ -19,7 +19,6 @@ class User
     string GetCurrentTimeStamp() const;
 public:
     DoublyList<Post*> Posts;  
-    static int NextID;
     int id;
     string PfpPath;
     string Name;
@@ -34,16 +33,10 @@ public:
 
 
     User();
-    User(
-        const string& Pfp,
-        const string& Name,
-        const string& Email,
-        const string& Password,
-        const string& Location,
-        char Gender,
-        int Age,
-        bool IsPublic,
-        const Date& CreatedAt);
+    User( const string& Pfp, const string& Name,
+        const string& Email, const string& Password,
+        const string& Location, char Gender,
+        int Age, bool IsPublic, const Date& CreatedAt);
     ~User();
     string GetName() const;
     string GetEmail() const;
